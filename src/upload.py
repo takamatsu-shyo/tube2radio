@@ -12,21 +12,25 @@ def load_config(json_file):
 def init_dropbox_client(access_token):
     return dropbox.Dropbox(access_token, user_agent="Dropbox-Python-SDK/12.0.0")
 
-def send_files(dbx, local_folder_path, dropbox_folder_path):
+def send_files(dbx, local_folder_path):
     for file_name in os.listdir(local_folder_path):
+
         if file_name == '.gitignore':
             continue
 
         local_file_path = os.path.join(local_folder_path, file_name)
-        dropbox_file_path = os.path.join(dropbox_folder_path, file_name)
+        dropbox_file_path = os.path.join('/', file_name)
+
 
         if os.path.isfile(local_file_path):
             with open(local_file_path, 'rb') as f:
                 try:
                     dbx.files_upload(f.read(), dropbox_file_path, mode=dropbox.files.WriteMode.overwrite)
                     logger.info(f"Uploaded file: {local_file_path} to {dropbox_file_path}")
+
                     os.remove(local_file_path)
                     logger.info(f"Deleted local file: {local_file_path}")
+
                 except dropbox.exceptions.ApiError as e:
                     logger.error(f"Failed to upload file: {local_file_path}, error: {e}")
 
@@ -61,15 +65,14 @@ def main():
 
     # Set folder paths and date/time threshold
     local_folder_path = 'data'
-    dropbox_folder_path = ''
     current_time = datetime.now()
     date_time_threshold = current_time - timedelta(days=3)
 
     # Send files from the local folder to Dropbox and delete them locally
-    send_files(dbx, local_folder_path, dropbox_folder_path)
+    send_files(dbx, local_folder_path)
 
     # Delete files older than 3 days in Dropbox
-    files = list_files(dbx, dropbox_folder_path)
+    files = list_files(dbx, '')
     delete_old_files(dbx, files, date_time_threshold)
 
 if __name__ == "__main__":
