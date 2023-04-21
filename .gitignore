@@ -1,5 +1,11 @@
 data/*
 cfg/*.txt
+cfg/api_key-channel_id.json
+cfg/dropbox.json
+cfg/dropbox_access_token.json
+todo
+tokens
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
