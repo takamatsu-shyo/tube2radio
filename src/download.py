@@ -11,7 +11,9 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='[%(threadName)s] %(levelname)s: %(message)s')
+
 
 def get_latest_video(api_key, channel_id):
     youtube = build('youtube', 'v3', developerKey=api_key)
@@ -70,6 +72,9 @@ def load_config():
 
 
 def monitor_channel(api_key, channel_id):
+    # Set the current thread's name to the channel ID for easier log identification
+    threading.current_thread().name = channel_id
+    
     last_video_id = load_last_video_id(channel_id)
 
     while True:
