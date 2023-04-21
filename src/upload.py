@@ -3,6 +3,7 @@ import logging
 import os
 import json
 from datetime import datetime, timedelta, timezone
+import requests
 
 def load_config(json_file):
     with open(json_file, 'r') as f:
@@ -58,10 +59,34 @@ def delete_old_files(dbx, files, date_time_threshold):
             except dropbox.exceptions.ApiError as e:
                 logger.error(f"Failed to delete file: {file.path_display}, error: {e}")
 
-def main():
-    # Load configuration and initialize Dropbox client
-    config = load_config('cfg/dropbox_access_token.json')
-    dbx = init_dropbox_client(config['access_token'])
+def refresh_access_token(client_id, client_secret, refresh_token):
+    token_url = "https://api.dropbox.com/oauth2/token"
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    payload = {
+        "grant_type": "refresh_token",
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "refresh_token": refresh_token,
+    }
+    response = requests.post(token_url, headers=headers, data=payload)
+    response_json = response.json()
+
+    if response.status_code != 200:
+        raise Exception(f"Error refreshing access token: {response_json}")
+
+    return response_json["access_token"]
+
+def upload():
+    # Load the configuration from the JSON file
+    with open("cfg/dropbox.json", "r") as config_file:
+        config = json.load(config_file)
+
+    # Refresh the access token
+    access_token = refresh_access_token(
+        config["client_id"], config["client_secret"], config["refresh_token"]
+    )
+
+    dbx = init_dropbox_client(access_token)
 
     # Set folder paths and date/time threshold
     local_folder_path = 'data'
@@ -80,5 +105,5 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
 
-    main()
+    upload()
 

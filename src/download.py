@@ -1,3 +1,5 @@
+import upload as up
+
 import os
 import sys
 import json
@@ -80,6 +82,8 @@ def monitor_channel(api_key, channel_id):
             last_video_id = video_id
         else:
             logging.info("No new videos or couldn't find the latest video.")
+
+        up.upload()
 
         logging.info("Sleeping")
         time.sleep(60 * 60)  # Sleep for 1 hour (3600 seconds)
