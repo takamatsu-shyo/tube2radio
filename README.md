@@ -1,2 +1,2 @@
 # tube2radio
-Convert Tube radio to a sound file, then send it to a cloud storage to save on mobile costs.
+A test project with ChatGPT-4: Convert Tube radio to a sound file, then send it to a cloud storage to save on mobile costs.
