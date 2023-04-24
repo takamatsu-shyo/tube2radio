@@ -7,7 +7,7 @@ A test project with ChatGPT-4: Convert Tube radio to a sound file, then send it 
 3. Set up your YouTube API and add values to the JSON file under `/cfg`
 4. Add your target channel ids to the JSON file
 5. Set up your Dropbox API and add values to the JSON file under `/cfg`
-6. Set up `systemd` for 
+6. Set up `systemd` for download and upload scripts. You need two services.
 
 # Details for the setup
 ## 5. Dropbox API, "refresh-token"

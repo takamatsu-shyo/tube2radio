@@ -1,5 +1,3 @@
-import upload as up
-
 import os
 import sys
 import json
@@ -9,8 +7,6 @@ import logging
 import threading
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-
-
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='[%(threadName)s] %(levelname)s: %(message)s')
 
@@ -88,10 +84,8 @@ def monitor_channel(api_key, channel_id):
         else:
             logging.info("No new videos or couldn't find the latest video.")
 
-        up.upload()
-
         logging.info("Sleeping")
-        time.sleep(60 * 60)  # Sleep for 1 hour (3600 seconds)
+        time.sleep(60 * 60 * 4)  # Sleep for 4 hours
 
 if __name__ == "__main__":
     config = load_config()

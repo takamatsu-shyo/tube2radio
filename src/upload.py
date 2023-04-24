@@ -4,6 +4,7 @@ import os
 import json
 from datetime import datetime, timedelta, timezone
 import requests
+import time
 
 def load_config(json_file):
     with open(json_file, 'r') as f:
@@ -77,28 +78,32 @@ def refresh_access_token(client_id, client_secret, refresh_token):
     return response_json["access_token"]
 
 def upload():
-    # Load the configuration from the JSON file
-    with open("cfg/dropbox.json", "r") as config_file:
-        config = json.load(config_file)
+    while True:
+        # Load the configuration from the JSON file
+        with open("cfg/dropbox.json", "r") as config_file:
+            config = json.load(config_file)
+    
+        # Refresh the access token
+        access_token = refresh_access_token(
+            config["client_id"], config["client_secret"], config["refresh_token"]
+        )
+    
+        dbx = init_dropbox_client(access_token)
+    
+        # Set folder paths and date/time threshold
+        local_folder_path = 'data'
+        current_time = datetime.now()
+        date_time_threshold = current_time - timedelta(days=5)
+    
+        # Send files from the local folder to Dropbox and delete them locally
+        send_files(dbx, local_folder_path)
+    
+        # Delete files older than 3 days in Dropbox
+        files = list_files(dbx, '')
+        delete_old_files(dbx, files, date_time_threshold)
 
-    # Refresh the access token
-    access_token = refresh_access_token(
-        config["client_id"], config["client_secret"], config["refresh_token"]
-    )
-
-    dbx = init_dropbox_client(access_token)
-
-    # Set folder paths and date/time threshold
-    local_folder_path = 'data'
-    current_time = datetime.now()
-    date_time_threshold = current_time - timedelta(days=3)
-
-    # Send files from the local folder to Dropbox and delete them locally
-    send_files(dbx, local_folder_path)
-
-    # Delete files older than 3 days in Dropbox
-    files = list_files(dbx, '')
-    delete_old_files(dbx, files, date_time_threshold)
+        logging.info("Sleeping")
+        time.sleep(60 * 60 * 4)  # Sleep for 4 hours
 
 if __name__ == "__main__":
     # Set up logging
